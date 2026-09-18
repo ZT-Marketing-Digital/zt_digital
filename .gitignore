@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-ssr
+.env
+.env.local
+*.log
+*.tsbuildinfo
+qa-screens
+api/config.php
+api/data/*
+!api/data/.htaccess

@@ -1,0 +1,109 @@
+/*
+ * Design tokens — ZT Digital
+ *
+ * Por que a paleta ficou assim:
+ * 1. A logo da ZT é monocromática; a cor da marca vive no site: laranja #E97506/#FF7D00 e grafite esverdeado #19272B.
+ * 2. O laranja vira a única cor de AÇÃO (botões, destaques de CTA). Texto sobre ele é grafite, porque branco não passa 4.5:1.
+ * 3. O âmbar #FBB244 (também do CSS original) é o acento: estados, detalhes e o "marca-texto" do H1 — nunca botão.
+ * 4. Os neutros são derivados do grafite #19272B (e não de um cinza puro) para a página inteira ter a mesma temperatura da marca.
+ * 5. Papel levemente quente (#F6F4EF) nas seções claras conversa com o laranja sem cansar como o branco puro.
+ */
+
+:root {
+  /* Ação — laranja ZT */
+  --orange-300: #ffb266;
+  --orange-400: #ff9433;
+  --orange-500: #ff7d00; /* ação primária */
+  --orange-600: #e97506; /* hover */
+  --orange-700: #d24a0b; /* pressionado */
+  --orange-ink: #b04a00; /* texto laranja sobre fundo claro (5:1 no papel) */
+
+  /* Acento — âmbar */
+  --amber-300: #ffd48a;
+  --amber-400: #fbb244;
+
+  /* Neutros derivados do grafite da marca */
+  --ink-950: #0b1315;
+  --ink-900: #101c1f;
+  --ink-800: #19272b; /* grafite original do site */
+  --ink-700: #26363b;
+  --ink-600: #3b4c51;
+  --ink-500: #5a6b70;
+  --ink-400: #7e8a8d; /* cinza original do site */
+  --ink-300: #aab5b7;
+  --ink-200: #d3dadb;
+  --ink-100: #e9edee;
+
+  --paper: #f6f4ef;
+  --surface: #ffffff;
+  --white: #ffffff;
+
+  /* Semântica */
+  --color-action: var(--orange-500);
+  --color-action-hover: var(--orange-600);
+  --color-action-active: var(--orange-700);
+  --color-on-action: var(--ink-950);
+  --color-accent: var(--amber-400);
+  --color-text: var(--ink-900);
+  --color-text-muted: var(--ink-500);
+  --color-text-on-dark: #eef2f2;
+  --color-text-on-dark-muted: #a9b6b8;
+  --color-border: rgba(16, 28, 31, 0.1);
+  --color-border-on-dark: rgba(238, 242, 242, 0.12);
+  --color-success: #2e9e6a;
+  --color-danger: #c2361f;
+  --color-whatsapp: #25d366;
+  --color-whatsapp-ink: #0b3d23;
+
+  /* Tipografia — uma família, três pesos */
+  --font: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --weight-regular: 400;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: clamp(1.125rem, 1rem + 0.4vw, 1.3125rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-h2: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --text-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.6rem);
+
+  --tracking-display: -0.045em;
+  --tracking-title: -0.03em;
+  --tracking-wide: 0.22em; /* eco da assinatura "MARKETING DIGITAL" */
+  --leading-tight: 1.04;
+  --leading-title: 1.12;
+  --leading-body: 1.65;
+
+  /* Forma */
+  --radius-sm: 10px; /* inputs, chips */
+  --radius-md: 16px;
+  --radius-lg: 26px; /* cards */
+  --radius-xl: 36px;
+  --radius-pill: 999px;
+
+  /* Profundidade */
+  --shadow-1: 0 1px 2px rgba(11, 19, 21, 0.06), 0 2px 8px rgba(11, 19, 21, 0.05);
+  --shadow-2: 0 8px 24px -8px rgba(11, 19, 21, 0.16), 0 2px 6px rgba(11, 19, 21, 0.06);
+  --shadow-3: 0 30px 70px -24px rgba(11, 19, 21, 0.45), 0 10px 24px -12px rgba(11, 19, 21, 0.25);
+  --glow-action: 0 12px 34px -10px rgba(255, 125, 0, 0.6);
+
+  /* Grão sutil para as seções escuras (SVG inline, sem requisição extra) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+
+  /* Motivo gráfico: módulo das cantoneiras e "pixels" da logo */
+  --bracket: 14px;
+  --bracket-stroke: 3px;
+
+  /* Layout e ritmo */
+  --container: 1200px;
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2rem);
+  --section-y: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  --header-h: 76px;
+
+  /* Movimento */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 180ms;
+  --dur: 320ms;
+}
