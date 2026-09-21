@@ -120,7 +120,39 @@ Nome, e-mail e telefone **nunca** vão em parâmetros de evento no navegador. Co
 - [x] Conversions API opcional (token em `config.php`), só com `consent_tracking = granted`, dados com SHA-256 e o mesmo `event_id`
 - [ ] **Não executado localmente** (sem PHP na máquina de desenvolvimento). Testar no cPanel após o deploy — ver abaixo.
 
-## Deploy no cPanel
+## Deploy automático (GitHub Actions → HostGator)
+
+Todo push na `main` dispara [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): instala, faz o build, confere o resultado e envia por FTP. Também dá para rodar à mão em **Actions → Deploy para HostGator → Run workflow**.
+
+**Secrets necessários** (repositório → Settings → Secrets and variables → Actions):
+
+| Secret | Valor |
+|---|---|
+| `FTP_HOST` | host FTP do cPanel (ex.: `ftp.ztdigital.com.br`) |
+| `FTP_USERNAME` | usuário da conta de FTP criada para o deploy |
+| `FTP_PASSWORD` | senha dessa conta |
+
+Crie no cPanel uma **conta de FTP dedicada ao deploy**, com o diretório apontando direto para a raiz do site (`/home2/ztdigi26/public_html`). Assim o `server-dir: ./` do workflow já cai na raiz. Se usar o usuário principal do cPanel, troque para `server-dir: ./public_html/`.
+
+O que o workflow envia:
+
+- `dist/` → raiz do site (HTML pré-renderizado, assets, `.htaccess`, `sitemap.xml`, `robots.txt`)
+- `api/` → `public_html/api/` (backend do formulário)
+
+O que ele **não** toca, porque não está no repositório e o `dangerous-clean-slate` está desligado: `api/config.php` e os leads em `api/data/`.
+
+Antes de conferir o build, o job falha se faltar o `index.html`, a página da política, o texto pré-renderizado, o Pixel no bundle ou o `.htaccess`.
+
+### Antes do primeiro deploy
+
+1. **Backup completo** do site atual (arquivos + banco) pelo cPanel.
+2. Decidir o destino de `/contrato/` e `/contrato-bodyprime/`, que hoje são páginas do WordPress.
+3. Saber que **o `.htaccess` da raiz será substituído** pelo desta landing. O do WordPress vai embora no primeiro deploy.
+4. Os arquivos antigos do WordPress **não são apagados** (o deploy nunca apaga nada). Como o nosso `.htaccess` define `DirectoryIndex index.html`, o site passa a servir a landing, mas a limpeza do WordPress é manual.
+5. Criar `api/config.php` no servidor a partir de `api/config.example.php` e a caixa `noreply@ztdigital.com.br` no cPanel.
+6. Conferir que `https://ztdigital.com.br/api/config.php` e `/api/data/` retornam **403**.
+
+## Deploy manual (alternativa)
 
 1. `npm run build`.
 2. **Antes de apagar o WordPress**, faça backup completo (arquivos + banco) e confirme o que fazer com `/contrato/` e `/contrato-bodyprime/`, que deixam de existir.

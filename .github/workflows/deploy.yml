@@ -1,0 +1,104 @@
+name: 🚀 Deploy para HostGator
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Um deploy por vez. O FTP-Deploy-Action guarda um arquivo de estado no
+# servidor para saber o que mudou; dois jobs simultâneos corrompem esse
+# controle e o deploy seguinte sobe tudo de novo (ou pior, sobe pela metade).
+concurrency:
+  group: deploy-producao
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout do código
+        uses: actions/checkout@v7
+
+      - name: 🟢 Configurar Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 📦 Instalar dependências
+        # `npm ci` em vez de `npm i`: instala exatamente o que está no
+        # package-lock.json. Build reproduzível e bem mais rápido no CI.
+        run: npm ci
+
+      - name: 🔨 Build de produção
+        # `npm run build` roda `tsc -b`, o Vite, o bundle SSR e o pré-render.
+        # Erro de TypeScript derruba o job aqui e nada quebrado chega ao servidor.
+        run: npm run build
+
+      - name: 🔍 Conferir o build
+        run: |
+          test -f dist/index.html || { echo "::error::dist/index.html não foi gerado"; exit 1; }
+          test -f dist/politica-de-privacidade-e-de-pagamento/index.html || { echo "::error::Página da política não foi pré-renderizada"; exit 1; }
+          # O texto precisa estar no HTML: é o que garante SEO e leitura sem JS.
+          grep -q "Nosso negócio é" dist/index.html || { echo "::error::HTML saiu sem o conteúdo pré-renderizado"; exit 1; }
+          # Na ZT o Pixel é injetado por JS (só após consentimento), então ele
+          # vive no bundle, não no index.html.
+          grep -rq "1400437541519673" dist/assets/ || { echo "::error::Meta Pixel sumiu do bundle"; exit 1; }
+          test -f dist/.htaccess || { echo "::error::.htaccess não foi para o dist"; exit 1; }
+          echo "Arquivos gerados:"
+          ls -lh dist/
+
+      - name: 📤 Deploy do site via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          # A conta de FTP do deploy deve ser criada apontando direto para a
+          # raiz do site (/home2/ztdigi26/public_html), então o login já cai
+          # lá dentro e "./" é a raiz do domínio.
+          #
+          # Se o deploy usar o usuário principal do cPanel, que entra em
+          # /home2/ztdigi26/, troque para:
+          #   server-dir: ./public_html/
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.DS_Store
+            **/node_modules/**
+          # false = não apaga o que já existe no servidor fora do que
+          # subimos. Nunca ligue isso sem ter backup.
+          dangerous-clean-slate: false
+          log-level: standard
+          # O padrão (30s) é curto para conexões lentas do HostGator.
+          timeout: 120000
+
+      - name: 📤 Deploy do backend do formulário via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./api/
+          server-dir: ./api/
+          # Estado separado do deploy do site: cada par de pastas precisa do
+          # seu próprio arquivo de controle, senão um sobrescreve o do outro.
+          state-name: .ftp-deploy-sync-state-api.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.DS_Store
+          # config.php (com o e-mail e o token da Conversions API) e os leads
+          # gravados em api/data/ vivem só no servidor e não estão no
+          # repositório. Com clean-slate desligado, eles não são tocados.
+          dangerous-clean-slate: false
+          log-level: standard
+          timeout: 120000
+
+      - name: ✅ Concluído
+        run: |
+          echo "🎉 Deploy concluído!"
+          echo "🌐 https://ztdigital.com.br"
