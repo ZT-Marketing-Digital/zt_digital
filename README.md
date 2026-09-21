@@ -166,7 +166,7 @@ Antes de conferir o build, o job falha se faltar o `index.html`, a página da po
 ## Pendências de conteúdo (pedir à ZT)
 
 1. **Telefone de Toledo:** a home mostra +55 45 98841-1379 e a página da política mostra +55 45 8828-1888. Qual vale?
-2. **WhatsApp comercial:** os botões usam +55 45 98843-0522 (o mesmo do site atual). Confirmar que é o número do comercial.
+2. ~~**WhatsApp comercial**~~ — resolvido em 21/09/2026: todos os botões usam **+55 45 8828-1888**.
 3. **Depoimentos reais** (texto ou vídeo, com autorização). A seção de depoimentos do site atual tem só texto de demonstração do tema, por isso ficou fora.
 4. **Cases com números** autorizados pelos clientes (hoje a página não traz nenhum número além de "+100 empresas", que vem do site).
 5. **História:** ano de fundação, fundadores, fotos reais da equipe e do espaço no Biopark.

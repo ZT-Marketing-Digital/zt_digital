@@ -14,9 +14,9 @@ export const SITE = {
   },
   contact: {
     email: 'contato@ztdigital.com.br',
-    // Número dos botões "Fale Conosco" e do widget de WhatsApp do site atual.
-    whatsappE164: '5545988430522',
-    whatsappDisplay: '+55 45 98843-0522',
+    // Número confirmado pela ZT em 21/09/2026 (substitui o 45 98843-0522 que estava no site antigo).
+    whatsappE164: '554588281888',
+    whatsappDisplay: '+55 45 8828-1888',
   },
   offices: [
     {

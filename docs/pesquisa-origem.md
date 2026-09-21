@@ -26,7 +26,7 @@ Extração feita em 18/09/2026 a partir de https://ztdigital.com.br/ e https://w
 | Sede 2 | Rodovia SC 401, 4100 - Km4 - Saco Grande, Florianópolis - SC, 88032-005 | rodapé |
 | Telefone Toledo | +55 45 98841-1379 (home) · **+55 45 8828-1888 (página da política)** | divergente |
 | Telefone Florianópolis | +55 48 98810-8396 | rodapé |
-| WhatsApp principal | +55 45 98843-0522 (botões "Fale Conosco" e widget Joinchat; schema `telephone`) | home |
+| WhatsApp principal | **+55 45 8828-1888** (confirmado pela ZT em 21/09/2026; o site antigo usava 45 98843-0522) | ZT |
 | WhatsApp secundário | +55 45 98841-1379 (bloco "Contato") | home |
 | E-mail | contato@ztdigital.com.br | rodapé |
 | Instagram | https://www.instagram.com/zt.digital/ | home |
@@ -115,7 +115,7 @@ Mensagens de WhatsApp pré-prontas encontradas:
 | Tema | Vem do site de origem | Vem dos materiais extras | Faltando (pedir ao cliente) |
 |---|---|---|---|
 | Identidade legal | Razão social, CNPJ, 2 endereços, e-mail | — | Qual telefone de Toledo é o atual (98841-1379 ou 8828-1888) |
-| Contato | WhatsApp 45 98843-0522 (principal) e 45 98841-1379 | — | Confirmar qual número atende o comercial; horário de atendimento |
+| Contato | WhatsApp 45 98843-0522 (antigo) e 45 98841-1379 | WhatsApp correto: **45 8828-1888** (ZT, 21/09/2026) | Horário de atendimento; confirmar o telefone de Toledo |
 | Oferta | Headline, sobre, 8 serviços, 4 etapas, 3 pilares de acompanhamento, 2 pilares de atendimento | — | Planos/escopo por faixa (se quiserem exibir) |
 | Plataformas de anúncios | "gerenciamento de anúncios para redes sociais" | Meta Ads, Google Ads e LinkedIn Ads (pedido da ZT em 18/09/2026, exibidos no card Tráfego Pago) | Confirmar se há outras (TikTok Ads etc.) |
 | Tracking | GA4/GTM existentes | Meta Pixel `1400437541519673` (enviado pelo usuário) | Decidir se o GA4 atual continua (a LP já aceita `VITE_GA4_ID`) |
