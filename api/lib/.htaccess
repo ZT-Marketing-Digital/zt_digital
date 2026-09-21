@@ -1,0 +1,3 @@
+# Biblioteca interna (PHPMailer): só o lead.php usa, via require.
+# Nada aqui deve ser acessível pela web.
+Require all denied
