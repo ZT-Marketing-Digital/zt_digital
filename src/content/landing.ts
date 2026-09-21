@@ -21,7 +21,7 @@ export const HERO = {
   eyebrow: 'Assessoria de marketing completa',
   // origem: "Nosso negócio é vender o seu!"
   titleStart: 'Nosso negócio é',
-  titleHighlight: 'fazer o seu crescer.',
+  titleHighlight: 'vender o seu.',
   // origem: "Somos uma assessoria de marketing completa por um valor mensal menor que o de um funcionário."
   subtitle: 'Somos uma assessoria de marketing completa por um valor mensal menor que o de um funcionário.',
   tags: ['Tráfego pago', 'CRM para WhatsApp', 'Conteúdo', 'Sites', 'Calls semanais'],
@@ -31,7 +31,6 @@ export const HERO = {
     checkin: { label: 'Check-in mensal', detail: 'faturamento × funil' },
   },
   funnel: ['Atração', 'Qualificação', 'Conversão', 'Fechamento'],
-  illustrativeNote: 'Ilustração',
 } as const;
 
 export const PAIN = {
@@ -95,7 +94,6 @@ export const PROCESS = {
   title: 'Quatro etapas. Um funil de vendas.',
   // origem
   text: 'Por meio de quatro etapas, organizamos o seu processo de vendas num formato de funil e construímos uma estratégia para ajudar sua empresa a vender mais utilizando a internet como motor.',
-  note: 'Telas e números ilustrativos',
   steps: [
     {
       number: '01',
@@ -205,7 +203,6 @@ export const HIGHLIGHT = {
   titleEnd: 'É preciso saber como chegar lá!',
   text: 'Cada etapa do funil vira um número acompanhado de perto: o que entra pela atração, o que avança na qualificação e o que fecha.',
   chartLabel: 'Funil de vendas',
-  note: 'Exemplo ilustrativo, sem dados reais',
 } as const;
 
 export const FOLLOW_UP = {
@@ -252,6 +249,7 @@ export const CLIENTS = {
   title: 'Conheça alguns de nossos parceiros.',
   // Logos exibidos no site atual, na mesma ordem.
   items: [
+    { slug: 'biopark', name: 'Biopark' },
     { slug: 'gou-odonto', name: 'Gou Odonto' },
     { slug: 'ortodoctor', name: 'OrtoDoctor Odontologia Especializada' },
     { slug: 'energy-sol', name: 'Energy Sol Sistemas Fotovoltaicos' },
@@ -263,7 +261,6 @@ export const CLIENTS = {
     { slug: 'leopoldo-menezes', name: 'Leopoldo Menezes Cirurgia Plástica' },
     { slug: 'body-prime', name: 'Body Prime Estética Avançada' },
     { slug: 'instituto-voce', name: 'Instituto Você' },
-    { slug: 'ressalt-odonto', name: "Ressal't Odonto" },
     { slug: 'vitacon', name: 'Vitacon' },
     { slug: 'ricardo-ribeiro', name: 'Ricardo Ribeiro' },
     { slug: 'odonto-company', name: 'Odonto Company' },

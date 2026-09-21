@@ -14,7 +14,10 @@ export function About() {
         <div>
           <Reveal>
             <p className="kicker">{ABOUT.kicker}</p>
-            <h2 id="about-title">{ABOUT.title}</h2>
+            {/* Título só para leitores de tela: as sedes já aparecem no cartão ao lado. */}
+            <h2 id="about-title" className="sr-only">
+              {ABOUT.title}
+            </h2>
             <p className="about__text">{ABOUT.text}</p>
           </Reveal>
 

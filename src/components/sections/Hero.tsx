@@ -180,7 +180,6 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          <p className="hero__note">{HERO.illustrativeNote}</p>
         </div>
       </div>
     </section>

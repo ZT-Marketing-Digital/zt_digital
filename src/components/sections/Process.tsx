@@ -85,7 +85,6 @@ export function Process() {
                 <span key={step.number} className={index <= active ? 'is-on' : ''} />
               ))}
             </div>
-            <p className="process__note">{PROCESS.note}</p>
           </div>
 
           <div className="process__steps-wrap">

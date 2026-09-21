@@ -14,7 +14,6 @@ const PARTICLES = Array.from({ length: 22 }, (_, index) => ({
 export function Highlight() {
   return (
     <section className="section section--dark highlight" aria-labelledby="highlight-title">
-      <div className="highlight__glow" aria-hidden="true" />
       <div className="container highlight__grid">
         <Reveal>
           <p className="kicker kicker--on-dark">{HIGHLIGHT.kicker}</p>
@@ -24,7 +23,7 @@ export function Highlight() {
           <p className="highlight__text">{HIGHLIGHT.text}</p>
         </Reveal>
 
-        <figure className="funnel" aria-label={`${HIGHLIGHT.chartLabel}: ${HERO.funnel.join(', ')}. ${HIGHLIGHT.note}.`}>
+        <figure className="funnel" aria-label={`${HIGHLIGHT.chartLabel}: ${HERO.funnel.join(', ')}.`}>
           <div className="funnel__stack" aria-hidden="true">
             {HERO.funnel.map((stage, index) => (
               <motion.div
@@ -51,7 +50,6 @@ export function Highlight() {
               ))}
             </div>
           </div>
-          <figcaption className="funnel__note">{HIGHLIGHT.note}</figcaption>
         </figure>
       </div>
     </section>

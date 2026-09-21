@@ -2,11 +2,11 @@ import { ArrowRight, Check, MessagesSquare, Megaphone, Play, Repeat, Trophy, Use
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { FacebookIcon, InstagramIcon, WhatsappIcon } from '../ui/BrandIcons';
 
-// Telas ilustrativas do painel travado. Qualquer número aqui é fictício (a legenda do painel avisa).
+// Telas do painel travado: interface e números são fictícios, feitos só para ilustrar cada etapa.
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
-// Números fictícios: a legenda do painel avisa que telas e números são ilustrativos.
+// Números fictícios (não são resultados da ZT).
 const ATTRACTION_BARS = [
   { label: 'Alcance', value: '48,2 mil', width: 92 },
   { label: 'Cliques', value: '1.940', width: 64 },

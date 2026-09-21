@@ -285,15 +285,6 @@
   color: var(--ink-950);
 }
 
-.hero__note {
-  position: absolute;
-  right: 0;
-  bottom: -2rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-400);
-}
 
 @media (max-width: 960px) {
   .hero__grid {
@@ -572,13 +563,6 @@
   background: var(--orange-500);
 }
 
-.process__note {
-  margin-top: 0.75rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-400);
-}
 
 .process__steps-wrap {
   position: relative;
@@ -1133,8 +1117,7 @@
     transform: scale(var(--screen-zoom));
     transform-origin: top left;
   }
-  .process__dots,
-  .process__note {
+  .process__dots {
     margin-top: 0.5rem;
   }
   .process__steps {
@@ -1408,11 +1391,24 @@
   overflow: clip;
 }
 
+/* Metade de baixo no mesmo ângulo da faixa: fecha a cunha clara que sobrava
+   entre a faixa girada e a seção escura seguinte. */
+.marquee::before {
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 50%;
+  bottom: -50%;
+  background: var(--ink-950);
+  transform: rotate(-2deg);
+}
+
 .marquee__band {
+  position: relative;
   background: var(--orange-500);
   color: var(--ink-950);
   transform: rotate(-2deg) scale(1.04);
-  box-shadow: 0 20px 40px -20px rgba(210, 74, 11, 0.6);
 }
 
 .marquee__track {
@@ -1458,18 +1454,8 @@
 
 .highlight {
   overflow: clip;
-}
-
-.highlight__glow {
-  position: absolute;
-  z-index: -1;
-  left: 50%;
-  top: 50%;
-  width: 900px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(255, 125, 0, 0.16), transparent);
-  translate: -50% -50%;
+  /* Fundo liso, sem o brilho laranja das seções escuras. */
+  background: var(--ink-950);
 }
 
 .highlight__grid {
@@ -1596,14 +1582,6 @@
   }
 }
 
-.funnel__note {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-400);
-}
 
 @media (max-width: 900px) {
   .highlight__grid {
