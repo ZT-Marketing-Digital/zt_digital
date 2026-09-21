@@ -139,7 +139,9 @@ O que o workflow envia:
 - `dist/` → raiz do site (HTML pré-renderizado, assets, `.htaccess`, `sitemap.xml`, `robots.txt`)
 - `api/` → `public_html/api/` (backend do formulário)
 
-O que ele **não** toca, porque não está no repositório e o `dangerous-clean-slate` está desligado: `api/config.php` e os leads em `api/data/`.
+O `api/config.php` é **gerado pelo próprio workflow** e sobe junto: destino dos leads (`ztagenciamktdigital@gmail.com`), remetente (`noreply@ztdigital.com.br`), origens aceitas e rate limit. O token da Conversions API vem do secret opcional `META_CAPI_TOKEN`; sem ele, a CAPI fica desligada e o formulário segue normal. **Para mudar o e-mail de destino, edite o workflow, não o servidor** — o deploy sobrescreve.
+
+Os leads gravados em `api/data/` nunca são tocados (o `dangerous-clean-slate` está desligado).
 
 Antes de conferir o build, o job falha se faltar o `index.html`, a página da política, o texto pré-renderizado, o Pixel no bundle ou o `.htaccess`.
 
@@ -149,7 +151,7 @@ Antes de conferir o build, o job falha se faltar o `index.html`, a página da po
 2. Decidir o destino de `/contrato/` e `/contrato-bodyprime/`, que hoje são páginas do WordPress.
 3. Saber que **o `.htaccess` da raiz será substituído** pelo desta landing. O do WordPress vai embora no primeiro deploy.
 4. Os arquivos antigos do WordPress **não são apagados** (o deploy nunca apaga nada). Como o nosso `.htaccess` define `DirectoryIndex index.html`, o site passa a servir a landing, mas a limpeza do WordPress é manual.
-5. Criar `api/config.php` no servidor a partir de `api/config.example.php` e a caixa `noreply@ztdigital.com.br` no cPanel.
+5. Criar a caixa `noreply@ztdigital.com.br` no cPanel (o `config.php` o deploy gera sozinho) e ativar o DKIM em **E-mail → Deliverability**.
 6. Conferir que `https://ztdigital.com.br/api/config.php` e `/api/data/` retornam **403**.
 
 ## Deploy manual (alternativa)

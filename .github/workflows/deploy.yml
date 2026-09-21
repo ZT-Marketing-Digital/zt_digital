@@ -49,6 +49,39 @@ jobs:
           echo "Arquivos gerados:"
           ls -lh dist/
 
+      - name: ⚙️ Gerar config.php do backend
+        # O config.php não vai no repositório: o token da Conversions API é
+        # secreto. Ele é montado aqui a partir do secret e sobe junto no
+        # deploy da pasta api/. Sem o secret, a CAPI fica desligada e o
+        # formulário funciona normalmente (e-mail + JSONL).
+        env:
+          META_CAPI_TOKEN: ${{ secrets.META_CAPI_TOKEN }}
+        run: |
+          cat > api/config.php <<PHP
+          <?php
+          // GERADO PELO DEPLOY — não edite no servidor, edite o workflow.
+          return [
+              'notify_to' => 'ztagenciamktdigital@gmail.com',
+              'notify_from' => 'noreply@ztdigital.com.br',
+              'notify_from_name' => 'Site ZT Digital',
+              'allowed_origins' => [
+                  'https://ztdigital.com.br',
+                  'https://www.ztdigital.com.br',
+              ],
+              'rate_limit_max' => 5,
+              'rate_limit_window' => 600,
+              'data_dir' => __DIR__ . '/data',
+              'meta_capi' => [
+                  'pixel_id' => '1400437541519673',
+                  'access_token' => '${META_CAPI_TOKEN}',
+                  'test_event_code' => '',
+                  'api_version' => 'v25.0',
+              ],
+          ];
+          PHP
+          php -l api/config.php || { echo "::error::config.php gerado com erro de sintaxe"; exit 1; }
+          echo "config.php gerado (destino: ztagenciamktdigital@gmail.com)"
+
       - name: 📤 Deploy do site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
