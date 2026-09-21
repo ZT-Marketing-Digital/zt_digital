@@ -20,6 +20,60 @@ function respond(int $status, array $body): void
     exit;
 }
 
+/**
+ * Envia a notificação do lead. Usa SMTP autenticado (PHPMailer) quando há host
+ * configurado; sem isso, cai no mail() do servidor, que o HostGator entrega mal.
+ */
+function send_notification(array $config, string $subject, string $body, string $replyTo, string $replyName): bool
+{
+    $smtp = $config['smtp'] ?? [];
+
+    if (!empty($smtp['host'])) {
+        $base = __DIR__ . '/lib/PHPMailer/';
+        require_once $base . 'Exception.php';
+        require_once $base . 'PHPMailer.php';
+        require_once $base . 'SMTP.php';
+
+        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = $smtp['host'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $smtp['user'];
+            $mail->Password = $smtp['pass'];
+            $mail->Port = (int)($smtp['port'] ?? 465);
+            // 465 = SSL implícito; 587 = STARTTLS.
+            $mail->SMTPSecure = $mail->Port === 587
+                ? PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS
+                : PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS;
+            $mail->Timeout = 20;
+            $mail->CharSet = 'UTF-8';
+
+            $mail->setFrom($config['notify_from'], $config['notify_from_name']);
+            $mail->addAddress($config['notify_to']);
+            $mail->addReplyTo($replyTo, $replyName !== '' ? $replyName : $replyTo);
+            $mail->Subject = $subject;
+            $mail->Body = $body;
+
+            return $mail->send();
+        } catch (Throwable $e) {
+            error_log('[lead] SMTP falhou: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    $headers = implode("\r\n", [
+        'From: =?UTF-8?B?' . base64_encode($config['notify_from_name']) . '?= <' . $config['notify_from'] . '>',
+        'Reply-To: ' . $replyTo,
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    ]);
+    $encoded = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+
+    return mail($config['notify_to'], $encoded, $body, $headers, '-f' . $config['notify_from']);
+}
+
 $configFile = __DIR__ . '/config.php';
 if (!is_file($configFile)) {
     error_log('[lead] config.php ausente');
@@ -58,7 +112,7 @@ if (trim((string)($data['honeypot'] ?? '')) !== '') {
 
 // ---------- Rate limit por IP (arquivo, sem banco) ----------
 
-$dataDir = rtrim($config['data_dir'], '/');
+$dataDir = rtrim($config['data_dir'] ?? __DIR__ . '/data', '/');
 if (!is_dir($dataDir) && !mkdir($dataDir, 0750, true) && !is_dir($dataDir)) {
     error_log('[lead] não foi possível criar data_dir');
     respond(500, ['ok' => false, 'error' => 'storage']);
@@ -143,7 +197,7 @@ $record = [
     'attribution' => array_map(static fn ($v) => mb_substr((string)$v, 0, 300), $attribution),
     'ip_hash' => hash('sha256', $ip),
 ];
-file_put_contents($dataDir . '/leads-' . date('Y-m') . '.jsonl', json_encode($record, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
+// O arquivo é gravado depois do e-mail, para registrar junto se o envio deu certo.
 
 // ---------- E-mail de notificação ----------
 
@@ -168,21 +222,18 @@ $lines[] = 'Página: ' . (string)($attribution['landing_url'] ?? '');
 $lines[] = 'Recebido em: ' . date('d/m/Y H:i');
 $lines[] = 'WhatsApp direto: https://wa.me/55' . $phoneDigits;
 
-$subject = '=?UTF-8?B?' . base64_encode('Novo lead no site: ' . $clean['company']) . '?=';
-$fromName = '=?UTF-8?B?' . base64_encode($config['notify_from_name']) . '?=';
+$subject = 'Novo lead no site: ' . $clean['company'];
+$body = implode("\n", $lines);
 $safeReply = filter_var($clean['email'], FILTER_VALIDATE_EMAIL) ? $clean['email'] : $config['notify_from'];
-$headers = implode("\r\n", [
-    'From: ' . $fromName . ' <' . $config['notify_from'] . '>',
-    'Reply-To: ' . $safeReply,
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: 8bit',
-]);
-$mailed = mail($config['notify_to'], $subject, implode("\n", $lines), $headers, '-f' . $config['notify_from']);
+
+$mailed = send_notification($config, $subject, $body, $safeReply, $clean['name']);
 if (!$mailed) {
     // O lead já está gravado no JSONL; registra e segue.
-    error_log('[lead] falha no mail() para ' . $config['notify_to']);
+    error_log('[lead] falha no envio do e-mail para ' . $config['notify_to']);
 }
+// Guarda no registro se o e-mail saiu, para dar para auditar depois.
+$record['mail_sent'] = $mailed;
+file_put_contents($dataDir . '/leads-' . date('Y-m') . '.jsonl', json_encode($record, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
 
 // ---------- Meta Conversions API (opcional, só com consentimento) ----------
 

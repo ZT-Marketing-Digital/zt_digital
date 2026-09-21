@@ -131,6 +131,11 @@ Todo push na `main` dispara [`.github/workflows/deploy.yml`](.github/workflows/d
 | `FTP_HOST` | host FTP do cPanel (ex.: `ftp.ztdigital.com.br`) |
 | `FTP_USERNAME` | usuário da conta de FTP criada para o deploy |
 | `FTP_PASSWORD` | senha dessa conta |
+| `SMTP_HOST` | opcional, mas recomendado: `mail.ztdigital.com.br`. Com ele, o e-mail sai por SMTP autenticado (PHPMailer). Vazio = `mail()` do servidor, que o Gmail costuma descartar |
+| `SMTP_PORT` | `465` (SSL) ou `587` (STARTTLS). Padrão: 465 |
+| `SMTP_USER` | `noreply@ztdigital.com.br` |
+| `SMTP_PASS` | senha da caixa `noreply` |
+| `META_CAPI_TOKEN` | opcional: token da Conversions API. Vazio = envio só pelo navegador |
 
 Crie no cPanel uma **conta de FTP dedicada ao deploy**, com o diretório apontando direto para a raiz do site (`/home2/ztdigi26/public_html`). Assim o `server-dir: ./` do workflow já cai na raiz. Se usar o usuário principal do cPanel, troque para `server-dir: ./public_html/`.
 
@@ -139,11 +144,17 @@ O que o workflow envia:
 - `dist/` → raiz do site (HTML pré-renderizado, assets, `.htaccess`, `sitemap.xml`, `robots.txt`)
 - `api/` → `public_html/api/` (backend do formulário)
 
-O `api/config.php` é **gerado pelo próprio workflow** e sobe junto: destino dos leads (`ztagenciamktdigital@gmail.com`), remetente (`noreply@ztdigital.com.br`), origens aceitas e rate limit. O token da Conversions API vem do secret opcional `META_CAPI_TOKEN`; sem ele, a CAPI fica desligada e o formulário segue normal. **Para mudar o e-mail de destino, edite o workflow, não o servidor** — o deploy sobrescreve.
+O `api/config.php` é **gerado pelo próprio workflow** (via `var_export`, então senha com `$`, `#` ou aspas não quebra o arquivo) e sobe junto: destino dos leads (`ztagenciamktdigital@gmail.com`), remetente (`noreply@ztdigital.com.br`), origens aceitas e rate limit. O token da Conversions API vem do secret opcional `META_CAPI_TOKEN`; sem ele, a CAPI fica desligada e o formulário segue normal. **Para mudar o e-mail de destino, edite o workflow, não o servidor** — o deploy sobrescreve.
 
 Os leads gravados em `api/data/` nunca são tocados (o `dangerous-clean-slate` está desligado).
 
 Antes de conferir o build, o job falha se faltar o `index.html`, a página da política, o texto pré-renderizado, o Pixel no bundle ou o `.htaccess`.
+
+### Envio do e-mail
+
+O `api/lead.php` manda a notificação por **SMTP autenticado com PHPMailer** (`api/lib/PHPMailer/`, versão 6.9.3) quando `SMTP_HOST` está configurado. Sem isso, cai no `mail()` do servidor — que no HostGator raramente chega ao Gmail.
+
+Cada lead é gravado em `api/data/leads-AAAA-MM.jsonl` **antes** de qualquer envio, com o campo `mail_sent` dizendo se o e-mail saiu. Se o e-mail falhar, o lead não se perde: está no arquivo. Erros de SMTP vão para o log de erros do cPanel.
 
 ### Antes do primeiro deploy
 

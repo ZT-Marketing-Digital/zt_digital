@@ -56,31 +56,45 @@ jobs:
         # formulário funciona normalmente (e-mail + JSONL).
         env:
           META_CAPI_TOKEN: ${{ secrets.META_CAPI_TOKEN }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          cat > api/config.php <<PHP
-          <?php
-          // GERADO PELO DEPLOY — não edite no servidor, edite o workflow.
-          return [
-              'notify_to' => 'ztagenciamktdigital@gmail.com',
-              'notify_from' => 'noreply@ztdigital.com.br',
-              'notify_from_name' => 'Site ZT Digital',
-              'allowed_origins' => [
-                  'https://ztdigital.com.br',
-                  'https://www.ztdigital.com.br',
+          # O próprio PHP monta o arquivo com var_export: assim senha com $, #
+          # ou aspas é escapada corretamente, em vez de quebrar o config.
+          php -r '
+            $config = [
+              "notify_to" => "ztagenciamktdigital@gmail.com",
+              "notify_from" => "noreply@ztdigital.com.br",
+              "notify_from_name" => "Site ZT Digital",
+              "allowed_origins" => ["https://ztdigital.com.br", "https://www.ztdigital.com.br"],
+              "rate_limit_max" => 5,
+              "rate_limit_window" => 600,
+              "smtp" => [
+                "host" => getenv("SMTP_HOST") ?: "",
+                "port" => (int)(getenv("SMTP_PORT") ?: 465),
+                "user" => getenv("SMTP_USER") ?: "",
+                "pass" => getenv("SMTP_PASS") ?: "",
               ],
-              'rate_limit_max' => 5,
-              'rate_limit_window' => 600,
-              'data_dir' => __DIR__ . '/data',
-              'meta_capi' => [
-                  'pixel_id' => '1400437541519673',
-                  'access_token' => '${META_CAPI_TOKEN}',
-                  'test_event_code' => '',
-                  'api_version' => 'v25.0',
+              "meta_capi" => [
+                "pixel_id" => "1400437541519673",
+                "access_token" => getenv("META_CAPI_TOKEN") ?: "",
+                "test_event_code" => "",
+                "api_version" => "v25.0",
               ],
-          ];
-          PHP
-          php -l api/config.php || { echo "::error::config.php gerado com erro de sintaxe"; exit 1; }
-          echo "config.php gerado (destino: ztagenciamktdigital@gmail.com)"
+            ];
+            $header = "<?php" . PHP_EOL . "// GERADO PELO DEPLOY - nao edite no servidor, edite .github/workflows/deploy.yml" . PHP_EOL;
+            file_put_contents("api/config.php", $header . "return " . var_export($config, true) . ";" . PHP_EOL);
+          '
+          for f in api/*.php api/lib/PHPMailer/*.php; do
+            php -l "$f" > /dev/null || { echo "::error::erro de sintaxe em $f"; exit 1; }
+          done
+          if [ -n "${SMTP_HOST}" ]; then
+            echo "config.php gerado | envio por SMTP | destino: ztagenciamktdigital@gmail.com"
+          else
+            echo "::warning::SMTP_HOST nao definido - o e-mail sai pelo mail() do servidor, que costuma nao chegar no Gmail"
+          fi
 
       - name: 📤 Deploy do site via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
