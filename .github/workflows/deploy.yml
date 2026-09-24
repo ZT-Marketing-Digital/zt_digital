@@ -79,15 +79,19 @@ jobs:
               "rate_limit_max" => 5,
               "rate_limit_window" => 600,
               "segundos_minimos_no_form" => 3,
+              // trim: secret colado com quebra de linha no fim quebra o host e a
+              // autenticacao. Na senha, tira so 
+, porque espaco pode ser proposital.
               "smtp" => [
-                "host" => getenv("SMTP_HOST") ?: "",
-                "port" => (int)(getenv("SMTP_PORT") ?: 465),
-                "user" => getenv("SMTP_USER") ?: "",
-                "pass" => getenv("SMTP_PASS") ?: "",
+                "host" => trim(getenv("SMTP_HOST") ?: ""),
+                "port" => (int)trim(getenv("SMTP_PORT") ?: "465"),
+                "user" => trim(getenv("SMTP_USER") ?: ""),
+                "pass" => trim(getenv("SMTP_PASS") ?: "", "
+"),
               ],
               "meta_capi" => [
                 "pixel_id" => "1400437541519673",
-                "access_token" => getenv("META_CAPI_TOKEN") ?: "",
+                "access_token" => trim(getenv("META_CAPI_TOKEN") ?: ""),
                 "test_event_code" => "",
                 "api_version" => "v25.0",
               ],
