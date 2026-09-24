@@ -109,6 +109,10 @@ Nome, e-mail e telefone **nunca** vão em parâmetros de evento no navegador. Co
 }
 ```
 
+### Diagnóstico
+
+`GET https://ztdigital.com.br/api/lead.php?status=1` responde com PHP, PHPMailer, OpenSSL, config encontrada, SMTP configurado (host e porta), nº de destinatários, CAPI ligada e pasta gravável. Não expõe senha, token nem os endereços de destino.
+
 ### Checklist do backend (`api/lead.php`)
 
 - [x] Aceita só `POST` JSON, até 32 KB, de origens da lista `allowed_origins`
@@ -118,7 +122,14 @@ Nome, e-mail e telefone **nunca** vão em parâmetros de evento no navegador. Co
 - [x] Grava cada lead em `api/data/leads-AAAA-MM.jsonl` (bloqueado para a web)
 - [x] E-mail de notificação para `contato@ztdigital.com.br` com `Reply-To` do lead e link direto de WhatsApp
 - [x] Conversions API opcional (token em `config.php`), só com `consent_tracking = granted`, dados com SHA-256 e o mesmo `event_id`
-- [ ] **Não executado localmente** (sem PHP na máquina de desenvolvimento). Testar no cPanel após o deploy — ver abaixo.
+- [x] Armadilha de tempo: envio em menos de 3 s é descartado com 200 falso, como o honeypot
+- [x] Remove `
+` de campos de uma linha (injeção de cabeçalho de e-mail)
+- [x] E-mail em HTML na identidade da ZT, com botões de resposta, UTMs e AltBody em texto
+- [x] `GET ?status=1` para diagnóstico
+- [x] **Verificado em produção em 24/09/2026**: status verde, 405/400/422/honeypot corretos, arquivos sensíveis em 403 e dois e-mails de teste entregues na caixa de entrada do Gmail (SMTP do Titan)
+
+O PHP não roda na máquina de desenvolvimento (Windows, sem PHP); a sintaxe é conferida por `php -l` no CI antes de qualquer envio.
 
 ## Deploy automático (GitHub Actions → HostGator)
 
@@ -131,7 +142,7 @@ Todo push na `main` dispara [`.github/workflows/deploy.yml`](.github/workflows/d
 | `FTP_HOST` | host FTP do cPanel (ex.: `ftp.ztdigital.com.br`) |
 | `FTP_USERNAME` | usuário da conta de FTP criada para o deploy |
 | `FTP_PASSWORD` | senha dessa conta |
-| `SMTP_HOST` | opcional, mas recomendado: `mail.ztdigital.com.br`. Com ele, o e-mail sai por SMTP autenticado (PHPMailer). Vazio = `mail()` do servidor, que o Gmail costuma descartar |
+| `SMTP_HOST` | `smtp.titan.email` — a caixa `noreply@ztdigital.com.br` está no plano de e-mail grátis da HostGator, que é Titan. Caixa criada no cPanel usaria `mail.ztdigital.com.br`. Vazio = `mail()` do servidor, que o Gmail descarta |
 | `SMTP_PORT` | `465` (SSL) ou `587` (STARTTLS). Padrão: 465 |
 | `SMTP_USER` | `noreply@ztdigital.com.br` |
 | `SMTP_PASS` | senha da caixa `noreply` |
