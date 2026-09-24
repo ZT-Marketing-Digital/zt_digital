@@ -125,6 +125,10 @@ if ($metodo === 'GET' && isset($_GET['status'])) {
         'openssl' => extension_loaded('openssl'),
         'config_encontrada' => $temConfig,
         'smtp_configurado' => !empty($smtp['host']) && !empty($smtp['user']) && !empty($smtp['pass']),
+        // Host e porta nao sao segredo (o MX do dominio ja os denuncia) e sao o
+        // que mais erra na configuracao: cPanel x Titan, 465 x 587.
+        'smtp_host' => (string)($smtp['host'] ?? ''),
+        'smtp_porta' => (int)($smtp['port'] ?? 0),
         'destinatarios' => count(array_filter((array)($config['notify_to'] ?? []))),
         'capi_ligada' => !empty($config['meta_capi']['access_token']),
         'pasta_gravavel' => is_dir($pastaDados) ? is_writable($pastaDados) : is_writable(__DIR__),
