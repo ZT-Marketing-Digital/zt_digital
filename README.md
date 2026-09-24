@@ -123,7 +123,8 @@ Nome, e-mail e telefone **nunca** vão em parâmetros de evento no navegador. Co
 - [x] E-mail de notificação para `contato@ztdigital.com.br` com `Reply-To` do lead e link direto de WhatsApp
 - [x] Conversions API opcional (token em `config.php`), só com `consent_tracking = granted`, dados com SHA-256 e o mesmo `event_id`
 - [x] Armadilha de tempo: envio em menos de 3 s é descartado com 200 falso, como o honeypot
-- [x] Remove `
+- [x] Remove `
+
 ` de campos de uma linha (injeção de cabeçalho de e-mail)
 - [x] E-mail em HTML na identidade da ZT, com botões de resposta, UTMs e AltBody em texto
 - [x] `GET ?status=1` para diagnóstico
@@ -147,6 +148,7 @@ Todo push na `main` dispara [`.github/workflows/deploy.yml`](.github/workflows/d
 | `SMTP_USER` | `noreply@ztdigital.com.br` |
 | `SMTP_PASS` | senha da caixa `noreply` |
 | `META_CAPI_TOKEN` | opcional: token da Conversions API. Vazio = envio só pelo navegador |
+| `META_CAPI_TEST_CODE` | opcional e temporário: com ele, os eventos da CAPI só aparecem em "Testar eventos" do Events Manager. Apague o secret depois de validar |
 
 Crie no cPanel uma **conta de FTP dedicada ao deploy**, com o diretório apontando direto para a raiz do site (`/home2/ztdigi26/public_html`). Assim o `server-dir: ./` do workflow já cai na raiz. Se usar o usuário principal do cPanel, troque para `server-dir: ./public_html/`.
 

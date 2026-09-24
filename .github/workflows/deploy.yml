@@ -63,6 +63,7 @@ jobs:
         # formulário funciona normalmente (e-mail + JSONL).
         env:
           META_CAPI_TOKEN: ${{ secrets.META_CAPI_TOKEN }}
+          META_CAPI_TEST_CODE: ${{ secrets.META_CAPI_TEST_CODE }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
@@ -91,7 +92,9 @@ jobs:
               "meta_capi" => [
                 "pixel_id" => "1400437541519673",
                 "access_token" => trim(getenv("META_CAPI_TOKEN") ?: ""),
-                "test_event_code" => "",
+                // Preenchido = os eventos aparecem só em "Testar eventos" do
+                // Events Manager. Apague o secret quando terminar de validar.
+                "test_event_code" => trim(getenv("META_CAPI_TEST_CODE") ?: ""),
                 "api_version" => "v25.0",
               ],
             ];
