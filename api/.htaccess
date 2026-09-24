@@ -1,5 +1,35 @@
-# Bloqueia acesso direto à configuração e aos exemplos.
-<FilesMatch "^(config|config\.example)\.php$">
-  Require all denied
+# Protecao da pasta /api/
+#
+# Escrito de forma conservadora de proposito: em vez de negar tudo e liberar
+# uma excecao (que derruba o endpoint se o Apache interpretar diferente),
+# negamos apenas o que e sensivel. Se alguma diretiva nao for suportada, o
+# formulario continua de pe.
+
+# Configuracao com a senha do SMTP e o token da Conversions API
+<FilesMatch "^config.*\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
 </FilesMatch>
+
+# Contadores do limite por IP — contem hash de endereco, nao deve ser publico
+<FilesMatch "^rate-.*\.json$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Leads gravados e biblioteca interna: nada ali precisa ser acessivel pelo navegador
+RedirectMatch 404 ^/api/data/
+RedirectMatch 404 ^/api/lib/
+
+# A pasta nao lista conteudo
 Options -Indexes

@@ -291,7 +291,14 @@ export const FORM = {
   subtitle: 'Campos marcados com (opcional) podem ficar em branco.',
   submit: 'Quero falar com a ZT',
   submitting: 'Enviando…',
-  error: 'Não foi possível enviar agora. Tente novamente ou fale com a gente pelo WhatsApp.',
+  // Uma mensagem por tipo de falha: o visitante precisa saber se é com ele
+  // (revisar campos) ou com a gente (servidor fora), e sempre ter outro caminho.
+  errors: {
+    rate_limit: 'Recebemos vários envios deste acesso. Aguarde alguns minutos ou chame no WhatsApp, que respondemos na hora.',
+    validacao: 'Alguns dados não passaram na conferência. Revise os campos e envie de novo, ou fale com a gente pelo WhatsApp.',
+    servidor: 'Nosso servidor não conseguiu registrar agora. Tente novamente em instantes ou chame no WhatsApp.',
+    rede: 'Não conseguimos falar com o servidor. Verifique sua conexão e tente de novo, ou chame no WhatsApp.',
+  },
   successTitle: 'Recebemos seus dados',
   successText: 'A equipe da ZT Digital vai entrar em contato pelo WhatsApp ou e-mail informado.',
   successMore: 'Quer adiantar a conversa?',

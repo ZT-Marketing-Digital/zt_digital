@@ -4,7 +4,7 @@ import type { LeadFormValues, LeadPayload } from './types';
 
 const ENDPOINT = import.meta.env.VITE_FORM_ENDPOINT;
 
-export function buildPayload(values: LeadFormValues): LeadPayload {
+export function buildPayload(values: LeadFormValues, openedAt: number): LeadPayload {
   const { fbp, fbc } = readMetaCookies();
 
   return {
@@ -36,7 +36,16 @@ export function buildPayload(values: LeadFormValues): LeadPayload {
     attribution: readAttribution(),
     meta: { submitted_at: new Date().toISOString(), form: 'contato_comercial', version: 1 },
     honeypot: values.website,
+    form_opened_at: openedAt,
   };
+}
+
+/** Falha de envio com um motivo que a interface sabe traduzir. */
+export class SubmitError extends Error {
+  constructor(readonly reason: 'rate_limit' | 'validacao' | 'servidor' | 'rede') {
+    super(reason);
+    this.name = 'SubmitError';
+  }
 }
 
 export async function submitLead(payload: LeadPayload) {
@@ -57,8 +66,18 @@ export async function submitLead(payload: LeadPayload) {
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
-    const body = (await response.json().catch(() => null)) as { ok?: boolean } | null;
-    if (!response.ok || !body?.ok) throw new Error(`Falha no envio (HTTP ${response.status})`);
+    if (response.ok) {
+      const body = (await response.json().catch(() => null)) as { ok?: boolean } | null;
+      if (body?.ok) return;
+      throw new SubmitError('servidor');
+    }
+    // 429 = limite por IP no servidor; 422 = validação recusada lá também.
+    if (response.status === 429) throw new SubmitError('rate_limit');
+    if (response.status === 422) throw new SubmitError('validacao');
+    throw new SubmitError('servidor');
+  } catch (error) {
+    if (error instanceof SubmitError) throw error;
+    throw new SubmitError('rede');
   } finally {
     window.clearTimeout(timeout);
   }

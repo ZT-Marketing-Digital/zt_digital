@@ -56,4 +56,6 @@ export type LeadPayload = {
   attribution: Attribution;
   meta: { submitted_at: string; form: 'contato_comercial'; version: 1 };
   honeypot: string;
+  /** Momento (ms) em que o formulário apareceu: o servidor descarta envio rápido demais. */
+  form_opened_at: number;
 };

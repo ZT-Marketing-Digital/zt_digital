@@ -1,12 +1,12 @@
 import { ArrowRight, CircleAlert, CircleCheck, LoaderCircle, RotateCcw } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useId, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { WhatsappIcon } from '../../components/ui/BrandIcons';
 import { ContactLink } from '../../components/ui/ContactLink';
 import { SITE, WHATSAPP_MESSAGES } from '../../config/site';
 import { FORM, FORM_OPTIONS } from '../../content/landing';
 import { events } from '../../lib/tracking/events';
-import { buildPayload, submitLead } from './submit';
+import { buildPayload, SubmitError, submitLead } from './submit';
 import type { LeadFormErrors, LeadFormField, LeadFormValues } from './types';
 import { FIELD_ORDER, INITIAL_VALUES, maskPhone, validate } from './validation';
 
@@ -97,10 +97,18 @@ export function LeadForm() {
   const id = (field: LeadFormField) => `${uid}-${field}`;
   const formRef = useRef<HTMLFormElement>(null);
   const started = useRef(false);
+  // Armadilha de tempo: envio mais rápido que o mínimo do servidor é robô.
+  const openedAt = useRef(0);
 
   const [values, setValues] = useState<LeadFormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<LeadFormErrors>({});
   const [status, setStatus] = useState<Status>('idle');
+  const [errorReason, setErrorReason] = useState<SubmitError['reason']>('servidor');
+
+  // No servidor não há relógio do visitante: marca ao hidratar.
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, []);
 
   const clearError = (field: LeadFormField) => {
     if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
@@ -159,7 +167,7 @@ export function LeadForm() {
     }
 
     setStatus('submitting');
-    const payload = buildPayload(values);
+    const payload = buildPayload(values, openedAt.current);
 
     try {
       await submitLead(payload);
@@ -173,7 +181,8 @@ export function LeadForm() {
         payload.tracking.event_id,
       );
       setStatus('success');
-    } catch {
+    } catch (error) {
+      setErrorReason(error instanceof SubmitError ? error.reason : 'servidor');
       setStatus('error');
     }
   };
@@ -364,7 +373,7 @@ export function LeadForm() {
           <motion.div className="lead-form__alert" role="alert" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             <CircleAlert size={18} aria-hidden="true" />
             <p>
-              {FORM.error}{' '}
+              {FORM.errors[errorReason]}{' '}
               <ContactLink method="whatsapp" location="form_erro" message={WHATSAPP_MESSAGES.contact}>
                 Abrir WhatsApp
               </ContactLink>

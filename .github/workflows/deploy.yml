@@ -46,6 +46,13 @@ jobs:
           # vive no bundle, não no index.html.
           grep -rq "1400437541519673" dist/assets/ || { echo "::error::Meta Pixel sumiu do bundle"; exit 1; }
           test -f dist/.htaccess || { echo "::error::.htaccess não foi para o dist"; exit 1; }
+          # Backend do formulário: sobe da pasta api/, num passo separado.
+          test -f api/lead.php || { echo "::error::api/lead.php sumiu"; exit 1; }
+          test -f api/lib/PHPMailer/PHPMailer.php || { echo "::error::PHPMailer sumiu de api/lib/"; exit 1; }
+          test -f api/.htaccess || { echo "::error::api/.htaccess sumiu"; exit 1; }
+          # O config.php tem senha de SMTP: não pode viajar dentro do site.
+          test ! -f dist/api/config.php || { echo "::error::config.php não pode ir no dist - ele é gerado no passo seguinte e vai só para /api/"; exit 1; }
+          test ! -e dist/api || { echo "::error::dist/api não deveria existir: o backend sobe da pasta api/ do repositório"; exit 1; }
           echo "Arquivos gerados:"
           ls -lh dist/
 
@@ -65,12 +72,13 @@ jobs:
           # ou aspas é escapada corretamente, em vez de quebrar o config.
           php -r '
             $config = [
-              "notify_to" => "ztagenciamktdigital@gmail.com",
+              "notify_to" => ["ztagenciamktdigital@gmail.com"],
               "notify_from" => "noreply@ztdigital.com.br",
               "notify_from_name" => "Site ZT Digital",
               "allowed_origins" => ["https://ztdigital.com.br", "https://www.ztdigital.com.br"],
               "rate_limit_max" => 5,
               "rate_limit_window" => 600,
+              "segundos_minimos_no_form" => 3,
               "smtp" => [
                 "host" => getenv("SMTP_HOST") ?: "",
                 "port" => (int)(getenv("SMTP_PORT") ?: 465),
