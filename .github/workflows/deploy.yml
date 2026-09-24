@@ -80,14 +80,13 @@ jobs:
               "rate_limit_window" => 600,
               "segundos_minimos_no_form" => 3,
               // trim: secret colado com quebra de linha no fim quebra o host e a
-              // autenticacao. Na senha, tira so 
-, porque espaco pode ser proposital.
+              // autenticacao. Na senha tiramos so CR e LF, porque espaco pode ser proposital.
               "smtp" => [
                 "host" => trim(getenv("SMTP_HOST") ?: ""),
                 "port" => (int)trim(getenv("SMTP_PORT") ?: "465"),
                 "user" => trim(getenv("SMTP_USER") ?: ""),
-                "pass" => trim(getenv("SMTP_PASS") ?: "", "
-"),
+                "pass" => trim(getenv("SMTP_PASS") ?: "", chr(13) . chr(10)),
+
               ],
               "meta_capi" => [
                 "pixel_id" => "1400437541519673",
